@@ -28,6 +28,7 @@ var (
 	flagKnownHostsFilename string
 	flagAuthorizedKeys     string
 	flagReadOnly           bool
+	flagQuickStart         bool
 )
 
 func hostCmd() *cobra.Command {
@@ -67,6 +68,7 @@ func hostCmd() *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&flagKnownHostsFilename, "known-hosts", "", defaultKnownHost(homeDir), "a file contains the known keys for remote hosts (required).")
 	cmd.PersistentFlags().StringVarP(&flagAuthorizedKeys, "authorized-key", "a", "", "an authorized_keys file that lists public keys that are permitted to connect.")
 	cmd.PersistentFlags().BoolVarP(&flagReadOnly, "read-only", "r", false, "host a read-only session. Clients won't be able to interact.")
+	cmd.PersistentFlags().BoolVarP(&flagQuickStart, "quick-start", "q", false, "Starts a session without showing info to the user.")
 
 	return cmd
 }
@@ -168,7 +170,7 @@ func shareRunE(c *cobra.Command, args []string) error {
 		HostKeyCallback:        hkcb,
 		AuthorizedKeys:         authorizedKeys,
 		KeepAliveDuration:      50 * time.Second, // nlb is 350 sec & heroku router is 55 sec
-		SessionCreatedCallback: displaySessionCallback,
+		SessionCreatedCallback: getSessionCallback(flagQuickStart),
 		ClientJoinedCallback:   clientJoinedCallback,
 		ClientLeftCallback:     clientLeftCallback,
 		Stdin:                  os.Stdin,
@@ -178,6 +180,15 @@ func shareRunE(c *cobra.Command, args []string) error {
 	}
 
 	return h.Run(context.Background())
+}
+
+func getSessionCallback(isQuickStart bool) func(*api.GetSessionResponse) error {
+    if isQuickStart {
+       return func(_ *api.GetSessionResponse) error {
+           return nil;
+       }
+    }
+    return displaySessionCallback
 }
 
 func clientJoinedCallback(c *api.Client) {
