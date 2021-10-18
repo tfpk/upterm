@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package server;
+option go_package = "github.com/owenthereal/upterm/server;server";
 
 message CreateSessionRequest {
     string hostUser = 1;
