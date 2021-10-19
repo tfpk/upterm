@@ -29,6 +29,7 @@ var (
 	flagAuthorizedKeys     string
 	flagReadOnly           bool
 	flagQuickStart         bool
+	flagSessionName        string
 )
 
 func hostCmd() *cobra.Command {
@@ -68,6 +69,7 @@ func hostCmd() *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&flagKnownHostsFilename, "known-hosts", "", defaultKnownHost(homeDir), "a file contains the known keys for remote hosts (required).")
 	cmd.PersistentFlags().StringVarP(&flagAuthorizedKeys, "authorized-key", "a", "", "an authorized_keys file that lists public keys that are permitted to connect.")
 	cmd.PersistentFlags().BoolVarP(&flagReadOnly, "read-only", "r", false, "host a read-only session. Clients won't be able to interact.")
+	cmd.PersistentFlags().StringVarP(&flagSessionName, "session-name", "s", "", "The name you would like the session to have.")
 	cmd.PersistentFlags().BoolVarP(&flagQuickStart, "quick-start", "q", false, "Starts a session without showing info to the user.")
 
 	return cmd
@@ -177,6 +179,7 @@ func shareRunE(c *cobra.Command, args []string) error {
 		Stdout:                 os.Stdout,
 		Logger:                 logger,
 		ReadOnly:               flagReadOnly,
+		SessionName:            flagSessionName,
 	}
 
 	return h.Run(context.Background())

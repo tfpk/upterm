@@ -26,6 +26,7 @@ type ReverseTunnel struct {
 	*ssh.Client
 
 	Host              *url.URL
+	SessionName       string
 	Signers           []ssh.Signer
 	AuthorizedKeys    []ssh.PublicKey
 	KeepAliveDuration time.Duration
@@ -99,7 +100,7 @@ func (c *ReverseTunnel) Establish(ctx context.Context) (*server.CreateSessionRes
 		return nil, sshDialError(c.Host.String(), err)
 	}
 
-	sessResp, err := c.createSession(user.Username, publicKeys, authorizedKeys)
+	sessResp, err := c.createSession(user.Username, publicKeys, authorizedKeys, c.SessionName)
 	if err != nil {
 		return nil, fmt.Errorf("error creating session: %w", err)
 	}
@@ -121,11 +122,14 @@ func (c *ReverseTunnel) Establish(ctx context.Context) (*server.CreateSessionRes
 	return sessResp, nil
 }
 
-func (c *ReverseTunnel) createSession(user string, hostPublicKeys [][]byte, clientAuthorizedKeys [][]byte) (*server.CreateSessionResponse, error) {
+func (c *ReverseTunnel) createSession(user string, hostPublicKeys [][]byte, clientAuthorizedKeys [][]byte, sessionName string) (*server.CreateSessionResponse, error) {
+	fmt.Println(sessionName)
 	req := &server.CreateSessionRequest{
 		HostUser:             user,
 		HostPublicKeys:       hostPublicKeys,
 		ClientAuthorizedKeys: clientAuthorizedKeys,
+		SessionName:          sessionName,
+
 	}
 	b, err := proto.Marshal(req)
 	if err != nil {

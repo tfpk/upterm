@@ -165,6 +165,7 @@ type Host struct {
 	Stdin                  *os.File
 	Stdout                 *os.File
 	ReadOnly               bool
+	SessionName            string
 }
 
 func (c *Host) Run(ctx context.Context) error {
@@ -187,6 +188,7 @@ func (c *Host) Run(ctx context.Context) error {
 	logger.Info("Etablishing reverse tunnel")
 	rt := internal.ReverseTunnel{
 		Host:              u,
+		SessionName:       c.SessionName,
 		Signers:           c.Signers,
 		HostKeyCallback:   c.HostKeyCallback,
 		AuthorizedKeys:    c.AuthorizedKeys,

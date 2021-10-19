@@ -9,6 +9,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"regexp"
+	"errors"
 
 	"github.com/dchest/uniuri"
 	"golang.org/x/crypto/ssh"
@@ -104,8 +106,19 @@ func ReadFiles(paths []string) ([][]byte, error) {
 	return files, nil
 }
 
-func GenerateSessionID() string {
-	return uniuri.NewLen(uniuri.UUIDLen)
+func GenerateSessionID(sessionName string) (string, error) {
+	var serverNameRegexp = regexp.MustCompile("^[a-zA-Z0-9_-]{3,}$")
+
+	// Empty SessionName == generated randomly
+	if sessionName == "" {
+		return uniuri.NewLen(uniuri.UUIDLen), nil
+	}
+
+	if serverNameRegexp.MatchString(sessionName) {
+		return sessionName, nil
+	}
+
+	return "", errors.New("Could not generate session ID from the given code.")
 }
 
 func FingerprintSHA256(key ssh.PublicKey) string {
