@@ -123,7 +123,6 @@ func (c *ReverseTunnel) Establish(ctx context.Context) (*server.CreateSessionRes
 }
 
 func (c *ReverseTunnel) createSession(user string, hostPublicKeys [][]byte, clientAuthorizedKeys [][]byte, sessionName string) (*server.CreateSessionResponse, error) {
-	fmt.Println(sessionName)
 	req := &server.CreateSessionRequest{
 		HostUser:             user,
 		HostPublicKeys:       hostPublicKeys,
